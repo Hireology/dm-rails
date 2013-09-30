@@ -8,31 +8,31 @@ namespace :db do
 
   namespace :create do
     desc 'Create all the local databases defined in config/database.yml'
-    task :all => :environment do
+    task :all do
       Rails::DataMapper.storage.create_all
     end
   end
 
   desc "Create all local databases defined for the current Rails.env"
-  task :create => :environment do
+  task :create do
     Rails::DataMapper.storage.create_environment(Rails::DataMapper.configuration.repositories[Rails.env])
   end
 
   namespace :drop do
     desc 'Drop all the local databases defined in config/database.yml'
-    task :all => :environment do
+    task :all do
       Rails::DataMapper.storage.drop_all
     end
   end
 
   desc "Drop all local databases defined for the current Rails.env"
-  task :drop => :environment do
+  task :drop do
     Rails::DataMapper.storage.drop_environment(Rails::DataMapper.configuration.repositories[Rails.env])
   end
 
 
   desc 'Perform destructive automigration of all repositories in the current Rails.env'
-  task :automigrate => :environment do
+  task :automigrate do
     require 'dm-migrations'
     Rails::DataMapper.configuration.repositories[Rails.env].each do |repository, config|
       ::DataMapper.auto_migrate!(repository.to_sym)
@@ -41,7 +41,7 @@ namespace :db do
   end
 
   desc 'Perform non destructive automigration of all repositories in the current Rails.env'
-  task :autoupgrade => :environment do
+  task :autoupgrade do
     require 'dm-migrations'
     Rails::DataMapper.configuration.repositories[Rails.env].each do |repository, config|
       ::DataMapper.auto_upgrade!(repository.to_sym)
@@ -50,13 +50,13 @@ namespace :db do
   end
 
   desc 'Load the seed data from db/seeds.rb'
-  task :seed => :environment do
+  task :seed do
     seed_file = File.join(Rails.root, 'db', 'seeds.rb')
     load(seed_file) if File.exist?(seed_file)
   end
 
   namespace :migrate do
-    task :load => :environment do
+    task :load do
       require 'dm-migrations/migration_runner'
       FileList['db/migrate/*.rb'].each do |migration|
         load migration
@@ -87,7 +87,7 @@ namespace :db do
 
   namespace :sessions do
     desc "Creates the sessions table for DataMapperStore"
-    task :create => :environment do
+    task :create do
       require 'dm-rails/session_store'
       Rails::DataMapper::SessionStore::Session.auto_migrate!
       database = Rails::DataMapper.configuration.repositories[Rails.env]['database']
@@ -95,7 +95,7 @@ namespace :db do
     end
 
     desc "Clear the sessions table for DataMapperStore"
-    task :clear => :environment do
+    task :clear do
       require 'dm-rails/session_store'
       Rails::DataMapper::SessionStore::Session.destroy!
       database = Rails::DataMapper.configuration.repositories[Rails.env]['database']
