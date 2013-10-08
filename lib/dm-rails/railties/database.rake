@@ -30,25 +30,6 @@ namespace :db do
     Rails::DataMapper.storage.drop_environment(Rails::DataMapper.configuration.repositories[Rails.env])
   end
 
-
-  desc 'Perform destructive automigration of all repositories in the current Rails.env'
-  task :automigrate => :environment do
-    require 'dm-migrations'
-    Rails::DataMapper.configuration.repositories[Rails.env].each do |repository, config|
-      ::DataMapper.auto_migrate!(repository.to_sym)
-      puts "[datamapper] Finished auto_migrate! for :#{repository} repository '#{config['database']}'"
-    end
-  end
-
-  desc 'Perform non destructive automigration of all repositories in the current Rails.env'
-  task :autoupgrade => :environment do
-    require 'dm-migrations'
-    Rails::DataMapper.configuration.repositories[Rails.env].each do |repository, config|
-      ::DataMapper.auto_upgrade!(repository.to_sym)
-      puts "[datamapper] Finished auto_upgrade! for :#{repository} repository '#{config['database']}'"
-    end
-  end
-
   desc 'Load the seed data from db/seeds.rb'
   task :seed => :environment do
     seed_file = File.join(Rails.root, 'db', 'seeds.rb')
@@ -72,17 +53,6 @@ namespace :db do
     task :down, [:version] => [:load] do |t, args|
       ::DataMapper::MigrationRunner.migrate_down!(args[:version])
     end
-  end
-
-  desc 'Migrate the database to the latest version'
-  task :migrate do
-    migrate_task = if Dir['db/migrate/*.rb'].empty?
-                     'db:autoupgrade'
-                   else
-                     'db:migrate:up'
-                   end
-
-    Rake::Task[migrate_task].invoke
   end
 
   namespace :sessions do
