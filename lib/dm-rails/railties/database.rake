@@ -3,58 +3,6 @@ require 'dm-rails/storage'
 
 namespace :db do
 
-  desc 'Create the database, load the schema, and initialize with the seed data'
-  task :setup => [ 'db:create', 'db:automigrate', 'db:seed' ]
-
-  namespace :create do
-    desc 'Create all the local databases defined in config/database.yml'
-    task :all do
-      Rails::DataMapper.storage.create_all
-    end
-  end
-
-  desc "Create all local databases defined for the current Rails.env"
-  task :create do
-    Rails::DataMapper.storage.create_environment(Rails::DataMapper.configuration.repositories[Rails.env])
-  end
-
-  namespace :drop do
-    desc 'Drop all the local databases defined in config/database.yml'
-    task :all do
-      Rails::DataMapper.storage.drop_all
-    end
-  end
-
-  desc "Drop all local databases defined for the current Rails.env"
-  task :drop do
-    Rails::DataMapper.storage.drop_environment(Rails::DataMapper.configuration.repositories[Rails.env])
-  end
-
-  desc 'Load the seed data from db/seeds.rb'
-  task :seed do
-    seed_file = File.join(Rails.root, 'db', 'seeds.rb')
-    load(seed_file) if File.exist?(seed_file)
-  end
-
-  namespace :migrate do
-    task :load do
-      require 'dm-migrations/migration_runner'
-      FileList['db/migrate/*.rb'].each do |migration|
-        load migration
-      end
-    end
-
-    desc 'Migrate up using migrations'
-    task :up, [:version] => [:load] do |t, args|
-      ::DataMapper::MigrationRunner.migrate_up!(args[:version])
-    end
-
-    desc 'Migrate down using migrations'
-    task :down, [:version] => [:load] do |t, args|
-      ::DataMapper::MigrationRunner.migrate_down!(args[:version])
-    end
-  end
-
   namespace :sessions do
     desc "Creates the sessions table for DataMapperStore"
     task :create do
